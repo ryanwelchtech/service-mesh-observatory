@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Activity, Shield, Network, AlertTriangle, TrendingUp, Server } from 'lucide-react'
+import Link from 'next/link'
+import { Activity, Shield, Network, AlertTriangle, TrendingUp, Server, Map } from 'lucide-react'
 
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState({
@@ -36,9 +37,18 @@ export default function DashboardPage() {
               Service Mesh Observatory
             </h1>
           </div>
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 bg-accent-success rounded-full animate-pulse"></span>
-            <span className="text-sm text-text-secondary">Live</span>
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/topology"
+              className="flex items-center space-x-2 px-4 py-2 bg-accent-primary/10 hover:bg-accent-primary/20 text-accent-primary font-medium rounded-lg transition-colors"
+            >
+              <Map className="w-4 h-4" />
+              <span>View Topology</span>
+            </Link>
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 bg-accent-success rounded-full animate-pulse"></span>
+              <span className="text-sm text-text-secondary">Live</span>
+            </div>
           </div>
         </div>
       </header>
@@ -83,17 +93,47 @@ export default function DashboardPage() {
           <div className="lg:col-span-2 p-6 glass rounded-xl">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-text-primary">Service Topology</h2>
-              <button className="px-4 py-2 bg-accent-primary/10 hover:bg-accent-primary/20 text-accent-primary font-medium rounded-lg transition-colors">
-                Refresh
-              </button>
+              <Link
+                href="/topology"
+                className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/80 text-white font-medium rounded-lg transition-colors"
+              >
+                Open Full View
+              </Link>
             </div>
-            <div className="h-96 flex items-center justify-center border border-border rounded-lg bg-background-tertiary/30">
-              <div className="text-center">
-                <Network className="w-16 h-16 text-accent-primary/50 mx-auto mb-4" />
-                <p className="text-text-secondary">Service mesh topology visualization</p>
-                <p className="text-sm text-text-muted mt-2">Connect to Kubernetes cluster to view live topology</p>
+            <Link href="/topology" className="block h-96 border border-border rounded-lg bg-background-tertiary/30 hover:border-accent-primary/50 transition-colors cursor-pointer overflow-hidden relative group">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <Network className="w-16 h-16 text-accent-primary/50 mx-auto mb-4 group-hover:text-accent-primary transition-colors" />
+                  <p className="text-text-secondary group-hover:text-text-primary transition-colors">Click to view interactive topology</p>
+                  <p className="text-sm text-text-muted mt-2">12 services | 16 connections | Live metrics</p>
+                </div>
               </div>
-            </div>
+              {/* Mini topology preview */}
+              <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity">
+                <svg className="w-full h-full" viewBox="0 0 400 300">
+                  <circle cx="200" cy="30" r="8" fill="#3b82f6" />
+                  <circle cx="200" cy="80" r="8" fill="#10b981" />
+                  <circle cx="200" cy="130" r="8" fill="#10b981" />
+                  <circle cx="100" cy="180" r="8" fill="#10b981" />
+                  <circle cx="200" cy="180" r="8" fill="#10b981" />
+                  <circle cx="300" cy="180" r="8" fill="#f59e0b" />
+                  <circle cx="150" cy="230" r="8" fill="#ef4444" />
+                  <circle cx="250" cy="230" r="8" fill="#10b981" />
+                  <circle cx="100" cy="270" r="8" fill="#8b5cf6" />
+                  <circle cx="200" cy="270" r="8" fill="#8b5cf6" />
+                  <circle cx="300" cy="270" r="8" fill="#10b981" />
+                  <line x1="200" y1="30" x2="200" y2="80" stroke="#3b82f6" strokeWidth="2" />
+                  <line x1="200" y1="80" x2="200" y2="130" stroke="#3b82f6" strokeWidth="2" />
+                  <line x1="200" y1="130" x2="100" y2="180" stroke="#10b981" strokeWidth="1" />
+                  <line x1="200" y1="130" x2="200" y2="180" stroke="#10b981" strokeWidth="1" />
+                  <line x1="200" y1="130" x2="300" y2="180" stroke="#f59e0b" strokeWidth="2" />
+                  <line x1="300" y1="180" x2="150" y2="230" stroke="#ef4444" strokeWidth="2" />
+                  <line x1="100" y1="180" x2="100" y2="270" stroke="#8b5cf6" strokeWidth="1" />
+                  <line x1="200" y1="180" x2="200" y2="270" stroke="#8b5cf6" strokeWidth="1" />
+                  <line x1="300" y1="180" x2="300" y2="270" stroke="#10b981" strokeWidth="1" />
+                </svg>
+              </div>
+            </Link>
           </div>
 
           {/* Recent Alerts */}
