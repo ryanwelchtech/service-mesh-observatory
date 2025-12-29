@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: observatory
+
+resources:
+- namespace.yaml
+- configmap.yaml
+- rbac.yaml
+- backend-deployment.yaml
+- frontend-deployment.yaml
+- istio-gateway.yaml
+- istio-security.yaml
+
+# Note: secrets.yaml is not included here
+# Create secrets manually or use external secrets management
+
+commonLabels:
+  project: service-mesh-observatory
+  managed-by: kustomize
+
+images:
+- name: ghcr.io/ryanwelchtech/observatory-backend
+  newTag: latest
+- name: ghcr.io/ryanwelchtech/observatory-frontend
+  newTag: latest

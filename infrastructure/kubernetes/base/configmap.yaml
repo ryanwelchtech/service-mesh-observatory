@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: observatory-config
+  namespace: observatory
+data:
+  redis-url: "redis://redis:6379/0"
+  prometheus-url: "http://prometheus.monitoring:9090"
+  jaeger-endpoint: "http://jaeger.monitoring:16686"
+  loki-url: "http://loki.monitoring:3100"
+  istio-api-endpoint: "https://istiod.istio-system:15014"
+  istio-namespace: "istio-system"

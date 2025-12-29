@@ -1,0 +1,138 @@
+groups:
+  - name: service_mesh_observatory
+    interval: 30s
+    rules:
+      # Certificate expiration alerts
+      - alert: CertificateExpiringIn7Days
+        expr: observatory_mtls_certificates_expiring_7d > 0
+        for: 5m
+        labels:
+          severity: critical
+          component: certificates
+        annotations:
+          summary: "mTLS certificates expiring within 7 days"
+          description: "{{ $value }} certificate(s) will expire within 7 days. Immediate action required."
+
+      - alert: CertificateExpiringIn30Days
+        expr: observatory_mtls_certificates_expiring_30d > 5
+        for: 1h
+        labels:
+          severity: warning
+          component: certificates
+        annotations:
+          summary: "Multiple certificates expiring within 30 days"
+          description: "{{ $value }} certificate(s) will expire within 30 days. Plan renewal."
+
+      # Anomaly detection alerts
+      - alert: HighAnomalyScore
+        expr: max(observatory_anomaly_score) > 0.85
+        for: 5m
+        labels:
+          severity: high
+          component: security
+        annotations:
+          summary: "High anomaly score detected"
+          description: "Service {{ $labels.service }} has anomaly score {{ $value }}. Possible security threat."
+
+      - alert: AnomalyDetected
+        expr: rate(observatory_anomaly_detections_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: medium
+          component: security
+        annotations:
+          summary: "Anomalies detected in service mesh traffic"
+          description: "{{ $value }} anomalies per second detected. Review security dashboard."
+
+      # Service mesh health
+      - alert: ServiceMeshControlPlaneDown
+        expr: up{job="istiod"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: istio
+        annotations:
+          summary: "Istio control plane is down"
+          description: "Istiod is not responding. Service mesh functionality degraded."
+
+      - alert: HighErrorRate
+        expr: |
+          (sum(rate(istio_requests_total{response_code=~"5.."}[5m])) by (destination_service_name)
+          / sum(rate(istio_requests_total[5m])) by (destination_service_name)) > 0.05
+        for: 5m
+        labels:
+          severity: high
+          component: mesh
+        annotations:
+          summary: "High error rate in service {{ $labels.destination_service_name }}"
+          description: "Error rate is {{ $value | humanizePercentage }}. Investigate immediately."
+
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(istio_request_duration_milliseconds_bucket[5m])) by (le, destination_service_name)
+          ) > 1000
+        for: 10m
+        labels:
+          severity: warning
+          component: mesh
+        annotations:
+          summary: "High latency in service {{ $labels.destination_service_name }}"
+          description: "P95 latency is {{ $value }}ms. Performance degradation detected."
+
+      # mTLS enforcement
+      - alert: MTLSNotEnforced
+        expr: |
+          sum(istio_requests_total{connection_security_policy!="mutual_tls"}) by (source_workload, destination_service_name) > 0
+        for: 5m
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "mTLS not enforced between services"
+          description: "Traffic from {{ $labels.source_workload }} to {{ $labels.destination_service_name }} is not using mTLS."
+
+      # Authorization policy compliance
+      - alert: ServiceWithoutAuthorizationPolicy
+        expr: observatory_services_without_policies > 0
+        for: 1h
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "Services without authorization policies"
+          description: "{{ $value }} service(s) do not have authorization policies applied."
+
+      # Observatory platform health
+      - alert: ObservatoryBackendDown
+        expr: up{job="observatory-backend"} == 0
+        for: 2m
+        labels:
+          severity: high
+          component: observatory
+        annotations:
+          summary: "Observatory backend is down"
+          description: "Observatory backend API is not responding."
+
+      - alert: ObservatoryHighMemoryUsage
+        expr: |
+          (container_memory_usage_bytes{pod=~"observatory-backend.*"}
+          / container_spec_memory_limit_bytes{pod=~"observatory-backend.*"}) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          component: observatory
+        annotations:
+          summary: "High memory usage in Observatory backend"
+          description: "Memory usage is {{ $value | humanizePercentage }}. Consider scaling or investigating memory leak."
+
+      # WebSocket connection issues
+      - alert: HighWebSocketDisconnectRate
+        expr: rate(observatory_websocket_disconnections_total[5m]) > 1
+        for: 5m
+        labels:
+          severity: medium
+          component: observatory
+        annotations:
+          summary: "High WebSocket disconnect rate"
+          description: "{{ $value }} disconnections per second. Check network stability."

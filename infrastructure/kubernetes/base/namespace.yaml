@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observatory
+  labels:
+    name: observatory
+    istio-injection: enabled

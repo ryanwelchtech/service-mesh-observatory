@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+- ../../base
+
+namespace: observatory
+
+replicas:
+- name: observatory-backend
+  count: 5
+- name: observatory-frontend
+  count: 3
+
+images:
+- name: ghcr.io/ryanwelchtech/observatory-backend
+  newTag: v1.0.0
+- name: ghcr.io/ryanwelchtech/observatory-frontend
+  newTag: v1.0.0
+
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/cpu
+      value: 500m
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/memory
+      value: 1Gi
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/cpu
+      value: 2000m
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/memory
+      value: 2Gi
+  target:
+    kind: Deployment
+    name: observatory-backend
