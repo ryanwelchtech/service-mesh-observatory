@@ -20,20 +20,21 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY src/frontend/ ./
 
 # Override config for standalone build (Docker needs server, not static export)
-RUN echo '/** @type {import("next").NextConfig} */\n\
-const nextConfig = {\n\
-  output: "standalone",\n\
-  reactStrictMode: true,\n\
-  env: {\n\
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",\n\
-    NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws",\n\
-  },\n\
-  webpack: (config) => {\n\
-    config.resolve.fallback = { fs: false, net: false, tls: false };\n\
-    return config;\n\
-  },\n\
-}\n\
-module.exports = nextConfig' > next.config.js
+RUN printf '%s\n' \
+  '/** @type {import("next").NextConfig} */' \
+  'const nextConfig = {' \
+  '  output: "standalone",' \
+  '  reactStrictMode: true,' \
+  '  env: {' \
+  '    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",' \
+  '    NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws",' \
+  '  },' \
+  '  webpack: (config) => {' \
+  '    config.resolve.fallback = { fs: false, net: false, tls: false };' \
+  '    return config;' \
+  '  },' \
+  '}' \
+  'module.exports = nextConfig' > next.config.js
 
 # Build application
 ENV NEXT_TELEMETRY_DISABLED=1
