@@ -99,6 +99,33 @@ sequenceDiagram
     Dashboard->>User: Display Success/Failure
 ```
 
+## Screenshots
+
+### Service Mesh Topology Visualization
+Interactive graph showing all services, their connections, and real-time traffic flow with health indicators.
+
+![Topology Visualization](screenshots/topology-visualization.png)
+
+### Service Details Panel
+Click any service node to view detailed metrics including RPS, latency, error rates, and mTLS status.
+
+![Service Details](screenshots/topology-service-details.png)
+
+### Dashboard Overview
+Real-time metrics, alerts, certificate health status, and authorization policy monitoring.
+
+![Dashboard](screenshots/dashboard-overview.png)
+
+### Landing Page
+Modern glassmorphism UI showcasing platform capabilities and tech stack.
+
+![Landing Page](screenshots/landing-page.png)
+
+### API Documentation
+Complete REST API documentation with Swagger UI for all endpoints.
+
+![API Docs](screenshots/api-documentation.png)
+
 ## Key Features
 
 - **Real-time Service Topology**: Interactive service mesh visualization with traffic flow heat maps, latency percentiles, and request rates updated via WebSocket
